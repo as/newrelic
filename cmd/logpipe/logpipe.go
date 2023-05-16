@@ -57,6 +57,7 @@ func init() {
 // newrelic says their max plaintext limit is 1MiB, i dont trust them
 const hiwater = 1024 * 1023
 
+// TODO(as): Intercept process SIGINT and SIGKILL
 func main() {
 	flag.Parse()
 	if key == "" {
@@ -122,6 +123,15 @@ func main() {
 		}
 		linec <- Log{T: ts, M: sc.Text()}
 	}
+
+	// These channels are not redundant:
+	//
+	// first, the scanner finishes
+	// second, we wait for the USPS goroutine above to finish shipping the existing logs
+	// finally, and only then, we can exit the process without losing tail logs
+	//
+	// If you modify this program to use push in a loop, you will need an additional channel
+	// so this process can complete with a proper timeout
 	dbg("scanner: done")
 	close(linec)
 	dbg("linec closed")
@@ -149,8 +159,13 @@ func push(box Box) bool {
 	if err != nil {
 		return false
 	}
+	
+	// subtle: if you dont read the response body in full and also close it
+	// the connection will not be reused. Go attempt to detect this misuse
+	// but only for Close()
 	io.Copy(ioutil.Discard, resp.Body)
 	resp.Body.Close()
+	
 	if resp.StatusCode == 401 {
 		fmt.Fprintf(os.Stderr, "logpipe: bad license key (got 401)")
 		os.Exit(1)
