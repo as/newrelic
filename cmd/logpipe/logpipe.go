@@ -28,7 +28,7 @@ DESCRIPTION
 	Logpipe sends every line read from its standard input to
 	newrelic as a log line. If the log line is valid json, and contains
 	an integer "ts" fields at its top level, that value is used as the
-	newrelic timestamp. By default, each line scanner is re-emitted
+	newrelic timestamp. By default, each line read is re-emitted
 	to standard output (see -q).
 
 	Logpipe will automatically batch log lines. See FLAGS
@@ -175,8 +175,8 @@ func push(box Box) bool {
 	io.Copy(ioutil.Discard, resp.Body)
 	resp.Body.Close()
 
-	if resp.StatusCode == 401 {
-		fmt.Fprintf(os.Stderr, "logpipe: bad license key (got 401)")
+	if resp.StatusCode == 401 || resp.StatusCode == 403 {
+		fmt.Fprintf(os.Stderr, "logpipe: bad license key: %s", resp.Status)
 		os.Exit(1)
 	}
 	if resp.StatusCode/100 > 3 {
