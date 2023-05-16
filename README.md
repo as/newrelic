@@ -4,7 +4,7 @@ A very simple newrelic command line log plumber
 # install
 
 ```
-go install github.com/as/newrelic/cmd/logpipe
+go install github.com/as/newrelic/cmd/logpipe@latest
 export NR_KEY=""
 ```
 
