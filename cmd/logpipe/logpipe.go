@@ -77,6 +77,14 @@ func main() {
 		}
 		flush := func() {
 			push(box)
+			// NOTE(as) theres a bug here where if the upstream
+			// fails, the logs in box above will be lost
+			// i dont expect this to be relevant to my current
+			// use case for this program.
+			//
+			// If you want to fix this, check the return value of
+			// push above and then split the boxes at the hiwater mark
+			// instead of creating a fresh one below.
 			box = Box{}
 		}
 		defer close(done)
