@@ -85,6 +85,10 @@ func main() {
 			// If you want to fix this, check the return value of
 			// push above and then split the boxes at the hiwater mark
 			// instead of creating a fresh one below.
+			//
+			// Alternatively, you can just use push in a loop until
+			// it returns true. The scanner should continue collecting
+			// lines concurrently.
 			box = Box{}
 		}
 		defer close(done)
