@@ -36,6 +36,10 @@ DESCRIPTION
 	the examples as above. If you are in a different region, set
 	$NR_URL too.
 
+BUGS
+	(1) Process signals are currently not intercepted
+	(2) If push fails, the buffered log lines are lost
+
 FLAGS`
 
 var (
